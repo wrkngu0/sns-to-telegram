@@ -10,3 +10,12 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# GoLand
+.idea
+
+# Json local data
+*.json
+
+# Packaged template
+packaged.yaml

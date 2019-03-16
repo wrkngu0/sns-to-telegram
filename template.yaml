@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sns-to-telegram
+  
+  SAM template for sending sns messages to telegram channel/group
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: sns-to-telegramm
+    Description: Lambda function for sending sns messages to telegram channel/group
+    Author: Aleksej Burdash
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['telegram','sns']
+    HomePageUrl: https://github.com/wrkngu0/sns-to-telegram
+    SemanticVersion: 0.0.1
+    SourceCodeUrl: https://github.com/wrkngu0/sns-to-telegram
+
+Parameters:
+  ApiKey:
+    Type: String
+    NoEcho: true
+  ChatId:
+    Type: String
+
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  SnsToTelegramFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: code/
+      Handler: main
+      Runtime: go1.x
+      Tracing: Active
+      Events:
+        CatchAll:
+          Type: SNS
+          Properties:
+            Topic: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AWS::StackName}'
+
+      Environment:
+        Variables:
+          API_KEY: !Ref ApiKey
+          CHAT_ID: !Ref ChatId
+
+#Resources
+  SnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${AWS::StackName}
+      TopicName: !Sub ${AWS::StackName}
+
+  SnsSubscribe:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt SnsToTelegramFunction.Arn
+      Protocol: lambda
+      TopicArn: !Ref SnsTopic
+
+  SnsTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Sid: AccountPush
+            Effect: Allow
+            Principal:
+              AWS: '*'
+            Action:
+              - SNS:Subscribe
+              - SNS:ListSubscriptionsByTopic
+              - SNS:Publish
+              - SNS:Receive
+            Resource: !Ref SnsTopic
+            Condition:
+              StringEquals:
+                AWS:SourceOwner: ${AWS::AccountId}
+          - Sid: AWSEvents
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sns:Publish
+            Resource: !Ref SnsTopic
+      Topics:
+        - !Ref SnsTopic
+
+Outputs:
+  SnsToTelegramFunction:
+    Description: "This Lambda Function ARN"
+    Value: !GetAtt SnsToTelegramFunction.Arn
+  SnsToTelegramFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt SnsToTelegramFunctionRole.Arn
