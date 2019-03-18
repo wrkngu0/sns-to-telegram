@@ -7,7 +7,7 @@ Description: >
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: sns-to-telegramm
+    Name: sns-to-telegram
     Description: Lambda function for sending sns messages to telegram channel/group
     Author: Aleksej Burdash
     SpdxLicenseId: Apache-2.0
