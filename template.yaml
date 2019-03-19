@@ -15,7 +15,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['telegram','sns']
     HomePageUrl: https://github.com/wrkngu0/sns-to-telegram
-    SemanticVersion: 0.0.1
+    SemanticVersion: 0.0.2
     SourceCodeUrl: https://github.com/wrkngu0/sns-to-telegram
 
 Parameters:
@@ -36,7 +36,6 @@ Resources:
       CodeUri: code/
       Handler: main
       Runtime: go1.x
-      Tracing: Active
       Events:
         CatchAll:
           Type: SNS
